@@ -5,6 +5,10 @@ Compose. Inspect nearby BLE devices, explore GATT services, and turn supported
 weight scale broadcasts into a dashboard with local history and optional uploads
 to your own server.
 
+## Download
+
+Get the release version on [Google Play](https://play.google.com/store/apps/details?id=com.btdebug.btdebugger).
+
 ## Features
 
 - Live device discovery with RSSI, device identification, search, filters, and
