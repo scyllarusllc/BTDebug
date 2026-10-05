@@ -9,6 +9,18 @@ to your own server.
 
 Get the release version on [Google Play](https://play.google.com/store/apps/details?id=com.btdebug.btdebugger).
 
+## Screenshots
+
+Version `26100602` (`2026.10.6`).
+
+| Weight dashboard and upload confirmation | App settings and QR import | BLE device scanner |
+| --- | --- | --- |
+| <img src="screenshots/26100602/Screenshot_20261006_053126.jpg" alt="Weight dashboard with trends and successful API upload toast" width="240"> | <img src="screenshots/26100602/Screenshot_20261006_054008.jpg" alt="App settings with AI prompt, QR import, and API configuration" width="240"> | <img src="screenshots/26100602/Screenshot_20261006_054042.jpg" alt="BLE device list with stable ordering and manual re-sort" width="240"> |
+
+| Advertisement inspection | GATT services | Event timeline |
+| --- | --- | --- |
+| <img src="screenshots/26100602/Screenshot_20261006_054049.jpg" alt="Decoded advertisement, raw packet, and device metadata" width="240"> | <img src="screenshots/26100602/Screenshot_20261006_054058.jpg" alt="Connected GATT services and readable characteristics" width="240"> | <img src="screenshots/26100602/Screenshot_20261006_054103.jpg" alt="Timeline of advertisements, connection events, and diagnostics" width="240"> |
+
 ## Features
 
 - Live device discovery with RSSI, device identification, search, filters, and
