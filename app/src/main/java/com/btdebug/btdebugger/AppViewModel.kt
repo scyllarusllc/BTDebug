@@ -69,6 +69,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val query = MutableStateFlow("")
     val filter = MutableStateFlow(FilterSpec())
     val sort = MutableStateFlow(SortMode.SIGNAL)
+    val pinnedDevices = MutableStateFlow(store.loadPinnedDevices())
     private val sortRevision = MutableStateFlow(0L)
     val presets = MutableStateFlow(store.loadPresets())
     val apps = MutableStateFlow(store.loadApps())
@@ -96,17 +97,24 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         current.copy(devices = ordered)
     }
 
-    val shown: StateFlow<List<ScanDevice>> = combine(orderedDevices, query, filter) { ordered, q, f ->
+    val shown: StateFlow<List<ScanDevice>> = combine(orderedDevices, query, filter, pinnedDevices) { ordered, q, f, pins ->
         val text = q.trim().lowercase()
         ordered.devices.filter { d ->
             (text.isEmpty() || text in d.displayName.lowercase() || text in d.address.lowercase().replace(":", "") || text in d.address.lowercase()) &&
                 (!f.connectableOnly || d.connectable) && (!f.namedOnly || d.name != null) &&
                 (!f.decodedOnly || d.decoded.isNotEmpty()) && d.rssi >= f.minRssi &&
                 (f.kinds.isEmpty() || d.kind in f.kinds)
-        }
+        }.sortedByDescending { it.address in pins }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun reorderDevices() { sortRevision.update { it + 1 } }
+
+    fun toggleDevicePin(address: String) {
+        val pins = pinnedDevices.value
+        val updated = if (address in pins) pins - address else pins + address
+        store.savePinnedDevices(updated)
+        pinnedDevices.value = updated
+    }
 
     init {
         viewModelScope.launch(Dispatchers.Default) { scanner.packets.collect(::onPacket) }

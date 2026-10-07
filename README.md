@@ -28,6 +28,9 @@ Version `26100602` (`2026.10.6`).
 - Stable device ordering: live values update without moving existing rows, and
   new devices appear at the bottom. Tap **Re-sort** or change the sort mode to
   reorder by signal, name, or recent activity.
+- Pin devices with the pin button to keep them above unpinned devices. Pins are
+  saved across app restarts and still respect search and filters. Unpinning
+  restores a device to its position in the held order.
 - Advertisement inspection and decoding, including OKOK/Chipsea scales,
   iBeacon, Eddystone, and Apple Continuity.
 - GATT service discovery, characteristic reads and writes, and notification

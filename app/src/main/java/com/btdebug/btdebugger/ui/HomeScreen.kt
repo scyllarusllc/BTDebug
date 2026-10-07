@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -35,6 +37,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -92,6 +95,7 @@ fun HomeScreen(vm: AppViewModel) {
 @Composable
 private fun ScanScreen(vm: AppViewModel) {
     val devices by vm.shown.collectAsStateWithLifecycle()
+    val pins by vm.pinnedDevices.collectAsStateWithLifecycle()
     val all by vm.scanner.devices.collectAsStateWithLifecycle()
     val query by vm.query.collectAsStateWithLifecycle()
     val filter by vm.filter.collectAsStateWithLifecycle()
@@ -136,7 +140,9 @@ private fun ScanScreen(vm: AppViewModel) {
             ) { Text(it, Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onErrorContainer) }
         }
         LazyColumn(contentPadding = androidx.compose.foundation.layout.PaddingValues(top = 8.dp, bottom = 100.dp)) {
-            items(devices, key = { it.address }) { DeviceRow(it) { vm.openDevice(it.address) } }
+            items(devices, key = { it.address }) {
+                DeviceRow(it, it.address in pins, { vm.toggleDevicePin(it.address) }) { vm.openDevice(it.address) }
+            }
             if (devices.isEmpty()) item {
                 Text(
                     if (all.isEmpty()) "Scanning… devices will appear here." else "No devices match the current filter.",
@@ -149,7 +155,7 @@ private fun ScanScreen(vm: AppViewModel) {
 }
 
 @Composable
-private fun DeviceRow(d: ScanDevice, onClick: () -> Unit) {
+private fun DeviceRow(d: ScanDevice, pinned: Boolean, onPin: () -> Unit, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -162,6 +168,7 @@ private fun DeviceRow(d: ScanDevice, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(d.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (pinned) Tag("Pinned", MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
                     if (d.connectable) Tag("Connectable", MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
                     else Tag("Broadcast only", MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant)
                     d.decoded.firstOrNull()?.let { Tag(it.protocol, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer) }
@@ -170,7 +177,16 @@ private fun DeviceRow(d: ScanDevice, onClick: () -> Unit) {
                 Text(d.address, fontFamily = Mono, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 d.identified?.let { Text("Identified: $it", color = SignalGood, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             }
-            RssiIndicator(d.rssi)
+            Column(horizontalAlignment = Alignment.End) {
+                RssiIndicator(d.rssi)
+                IconToggleButton(checked = pinned, onCheckedChange = { onPin() }) {
+                    Icon(
+                        if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = "${if (pinned) "Unpin" else "Pin"} device ${d.address}",
+                        tint = if (pinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

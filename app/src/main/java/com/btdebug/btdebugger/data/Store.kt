@@ -25,6 +25,12 @@ data class ApiSettings(val url: String = "", val token: String = "", val enabled
 class Store(context: Context) {
     private val prefs = context.getSharedPreferences("btdebug", Context.MODE_PRIVATE)
 
+    fun loadPinnedDevices(): Set<String> = prefs.getStringSet("pinned_devices", emptySet()).orEmpty().toSet()
+
+    fun savePinnedDevices(addresses: Set<String>) {
+        prefs.edit().putStringSet("pinned_devices", addresses.toSet()).apply()
+    }
+
     fun loadPresets(): List<FilterPreset> = runCatching {
         val a = JSONArray(prefs.getString("presets", "[]"))
         List(a.length()) { i ->
